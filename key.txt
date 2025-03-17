@@ -1,0 +1,2 @@
+key_id ; rzp_test_m60EaJoASbqtGR
+secret ; pzIHmVc5tDa76mTSU552aa3d
