@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 const PORT = 1908;
 
-mongoose.connect("mongodb://127.0.0.1/Advue")
+mongoose.connect("mongodb+srv://PARTHMAKWANA:Home%40789987@advuebackendcluster.ne0ap.mongodb.net/Advue?retryWrites=true&w=majority")
     .then(() => {
         console.log("Database Connected Successfully");
     })
