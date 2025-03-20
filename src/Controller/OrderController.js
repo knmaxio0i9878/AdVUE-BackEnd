@@ -101,10 +101,26 @@ const getSingleOrder = async (req, res) => {
     }
 };
 
-
+const deleteOrder = async(req,res)=>{
+    const id = req.params.id;
+       const deleteOrder = await orderschema.findByIdAndDelete(id)
+       console.log(deleteOrder);
+       if (deleteOrder) {
+           res.status(201).json({
+               data: deleteOrder,
+               message: 'Ordder deleted Successfully'
+           })
+       }
+       else {
+           res.status(404).json({
+               message: 'No such State found'
+           })
+       }
+}
 
 module.exports = {
     addOrder,
     getAllOrders,
-    getSingleOrder
+    getSingleOrder,
+    deleteOrder
 }
