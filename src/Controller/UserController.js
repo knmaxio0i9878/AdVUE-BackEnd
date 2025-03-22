@@ -23,13 +23,13 @@ const getUserByEmail = async (req, res) => {
         otp = Math.floor(Math.random() * 10000);
         console.log(otp);
 
-        await mail.sendingMail(user.email, "Verification of Password", "Otp for Change Password : " + otp)
+        // await mail.sendingMail(user.email, "Verification of Password", "Otp for Change Password : " + otp)
         res.status(201).json({
             data: user,
             message: "User Found"
         })
-        const { password } = req.body;
-        // const respone = 
+        // const { password } = req.body;
+        
     } else {
         res.status(404).json({
             message: "User Not found"
