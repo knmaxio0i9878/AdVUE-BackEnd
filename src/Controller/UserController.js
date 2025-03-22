@@ -15,66 +15,87 @@ const getAllUser = async (req, res) => {
         message: "Successfully got all the Users"
     })
 }
-var otp;
+
 const getUserByEmail = async (req, res) => {
     const { email } = req.body;
     const user = await userSchema.findOne({ email: email });
-    if (user) {
-        otp = Math.floor(Math.random() * 10000);
-        console.log(otp);
 
-        // await mail.sendingMail(user.email, "Verification of Password", "Otp for Change Password : " + otp)
+    if (user) {
+        const otp = Math.floor(1000 + Math.random() * 9000); // 4-digit OTP
+        const otpExpiry = Date.now() + 5 * 60 * 1000; // Expires in 5 minutes
+
+        // Store OTP in memory
+        otpStore[user._id] = { otp, expiresAt: otpExpiry };
+
+        console.log("Generated OTP:", otp);
+        await mail.sendingMail(user.email, "Verification of Password", `Your OTP for password reset: ${otp}`);
+
         res.status(201).json({
-            data: user,
-            message: "User Found"
-        })
-        // const { password } = req.body;
-        
+            message: "OTP sent to email",
+        });
     } else {
         res.status(404).json({
-            message: "User Not found"
-        })
+            message: "User not found",
+        });
     }
-}
+};
+
 const updateForgotUser = async (req, res) => {
     try {
-        const id = req.params.id;
+        const { id } = req.params;
+        const { password, otp } = req.body;
 
-        // Check if the password exists in the request body
-        if (req.body.password) {
-            req.body.password = await encrypt.hashedPassword(req.body.password);
-            if (req.body.otp === otp) {
-                // Update the user with the modified request body
-                const updatedUser = await userSchema.findByIdAndUpdate(id, req.body, { new: true });
+        if (!otp) {
+            return res.status(400).json({ message: "OTP is required" });
+        }
 
-                if (updatedUser) {
-                    res.status(201).json({
-                        data: updatedUser,
-                        message: "Updated user successfully",
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "No such user found to update",
-                    });
-                }
-            } else {
-                res.status(404).json({
-                    message: "Invalid OTP"
-                })
-            }
+        // Retrieve OTP from memory
+        const storedOtp = otpStore[id];
+
+        if (!storedOtp) {
+            return res.status(400).json({ message: "OTP not found" });
         }
-        else {
-            res.status(404).json({
-                message: "No such Otp found to update",
-            });
+
+        // Check if OTP is correct
+        if (String(storedOtp.otp) !== String(otp)) {
+            return res.status(400).json({ message: "Invalid OTP" });
         }
+
+        // Check if OTP is expired
+        if (storedOtp.expiresAt < Date.now()) {
+            delete otpStore[id]; // Remove expired OTP
+            return res.status(400).json({ message: "OTP has expired" });
+        }
+
+        if (!password) {
+            return res.status(400).json({ message: "Password is required" });
+        }
+
+        // Hash the new password
+        const hashedPassword = await encrypt.hashedPassword(password);
+
+        // Update the user
+        const updatedUser = await userSchema.findByIdAndUpdate(id, { password: hashedPassword }, { new: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Delete OTP after successful verification
+        delete otpStore[id];
+
+        res.status(200).json({
+            message: "Password updated successfully",
+        });
+
     } catch (error) {
         res.status(500).json({
             message: "An error occurred while updating the user",
             error: error.message,
         });
     }
-}
+};
+
 
 const UserAdd = async (req, res) => {
 
