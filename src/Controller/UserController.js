@@ -39,12 +39,16 @@ const getUserByEmail = async (req, res) => {
 const updateForgotUser = async (req, res) => {
     try {
         const id = req.params.id;
+        console.log(req.body.password);
+        console.log(req.body.otp);
 
-        // Check if the password exists in the request body
+        
+
+        
         if (req.body.password) {
             req.body.password = await encrypt.hashedPassword(req.body.password);
             if (req.body.otp === otp) {
-                // Update the user with the modified request body
+
                 const updatedUser = await userSchema.findByIdAndUpdate(id, req.body, { new: true });
 
                 if (updatedUser) {
