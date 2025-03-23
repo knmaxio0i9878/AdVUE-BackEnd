@@ -3,7 +3,7 @@ const orderschema = require("../Models/OrderModel")
 const userSchema = require("../Models/UserModel")
 const productSchema = require("../Models/ProductModel");
 const path = require("path");
-
+const mail = require("../Service/MailUtil");
 
 
 const addOrder = async (req, res) => {
@@ -16,7 +16,8 @@ const addOrder = async (req, res) => {
         halfamount: req.body.halfamount,
         remainingamount: req.body.remainingamount,
         start_dt: req.body.start_dt,
-        order_dt: req.body.order_dt
+        order_dt: req.body.order_dt,
+        status:"Remaining" 
     };
 
     try {

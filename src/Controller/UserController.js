@@ -40,11 +40,7 @@ const updateForgotUser = async (req, res) => {
     try {
         const id = req.params.id;
         console.log(req.body.password);
-        console.log(req.body.otp);
-
-        
-
-        
+        console.log("otp",req.body.otp);        
         if (req.body.password) {
             req.body.password = await encrypt.hashedPassword(req.body.password);
             if (req.body.otp === otp) {
