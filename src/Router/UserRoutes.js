@@ -10,6 +10,6 @@ router.put("/updateuser/:id",userController.updateUser)
 router.put("/updateforgotuser/:id",userController.updateForgotUser)
 router.put("/updateuserproduct/:id",userController.updateUserProduct)
 router.get("/singleuser/:id",userController.getSingleUser)
-router.post("/confirmorderemail",userController.sendConfirmEmail)
+router.post("/confirmorderemail/:token",userController.sendConfirmEmail)
 
 module.exports = router

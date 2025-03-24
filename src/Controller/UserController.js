@@ -15,66 +15,81 @@ const getAllUser = async (req, res) => {
         message: "Successfully got all the Users"
     })
 }
-var otp;
 const getUserByEmail = async (req, res) => {
     const { email } = req.body;
     const user = await userSchema.findOne({ email: email });
     if (user) {
-        otp = Math.floor(Math.random() * 10000);
-        console.log(otp);
+        const token = tokenUtil.generateToken(user.toObject());
+        const emailBody = `Click Here for Password Reset : <a href="http://localhost:5173/forgotusertoken/${token}"> Reset </a>`;
 
-        await mail.sendingMail(user.email, "Verification of Password", "Otp for Change Password : " + otp)
+        await mail.sendingMail(user.email, "Verification of Password", emailBody)
         res.status(201).json({
             data: user,
             message: "User Found"
         })
         const { password } = req.body;
-        // const respone = 
     } else {
         res.status(404).json({
             message: "User Not found"
-        })
+        }) 
     }
 }
 const updateForgotUser = async (req, res) => {
     try {
-        const id = req.params.id;
-        console.log(req.body.password);
-        console.log("otp",req.body.otp);        
-        if (req.body.password) {
-            req.body.password = await encrypt.hashedPassword(req.body.password);
-            if (req.body.otp === otp) {
-
-                const updatedUser = await userSchema.findByIdAndUpdate(id, req.body, { new: true });
-
-                if (updatedUser) {
-                    res.status(201).json({
-                        data: updatedUser,
-                        message: "Updated user successfully",
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "No such user found to update",
-                    });
-                }
-            } else {
-                res.status(404).json({
-                    message: "Invalid OTP"
-                })
-            }
-        }
-        else {
-            res.status(404).json({
-                message: "No such Otp found to update",
+        const token = req.params.token; 
+        console.log("Received Token:", token);
+        if (!token) {
+            res.status(400).json({
+                 message: "Token is required" 
             });
         }
+        let decoded;
+        decoded = jwt.verify(token,"parth1923")
+        console.log("decoded",decoded);
+        
+
+        const userId = decoded._id; // Extract user ID from token
+        console.log("Decoded User ID:", userId);
+
+        console.log("New Password:", req.body.password);
+
+        if (!req.body.password) {
+            return res.status(400).json({ message: "Password is required" });
+        }
+
+        // Encrypt the new password
+        let hashedPassword;
+        try {
+            hashedPassword = await encrypt.hashedPassword(req.body.password);
+        } catch (hashError) {
+            console.error("Password Hashing Error:", hashError.message);
+            return res.status(500).json({ message: "Error hashing password" });
+        }
+
+        // Find and update the user
+        const updatedUser = await userSchema.findByIdAndUpdate(
+            userId, 
+            { password: hashedPassword }, 
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        return res.status(200).json({
+            data: updatedUser,
+            message: "Password updated successfully",
+        });
+
     } catch (error) {
-        res.status(500).json({
-            message: "An error occurred while updating the user",
+        console.error("Error updating password:", error.message);
+        return res.status(500).json({
+            message: "An error occurred while updating the password",
             error: error.message,
         });
     }
-}
+};
 
 const UserAdd = async (req, res) => {
 
