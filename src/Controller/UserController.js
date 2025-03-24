@@ -20,7 +20,7 @@ const getUserByEmail = async (req, res) => {
     const user = await userSchema.findOne({ email: email });
     if (user) {
         const token = tokenUtil.generateToken(user.toObject());
-        const emailBody = `Click Here for Password Reset : <a href="http://localhost:5173/forgotusertoken/${token}"> Reset </a>`;
+        const emailBody = `Click Here for Password Reset : <a href="https://advue-backend-4.onrender.com/forgotusertoken/${token}"> Reset </a>`;
 
         await mail.sendingMail(user.email, "Verification of Password", emailBody)
         res.status(201).json({
@@ -294,7 +294,7 @@ const sendConfirmEmail = async (req, res) => {
 
           <p style="margin-top: 20px; color: #555;">If you have any questions, feel free to contact us.</p>
       
-          <a href="https://localhost:5173/userfeedback" 
+          <a href="https://advue-backend-4.onrender.com/userfeedback/${orderDetails?._id}" 
              style="display: inline-block; padding: 10px 20px; background-color: #4A6FA5; color: white; text-decoration: none; border-radius: 5px;">
              Give Feedback
           </a>
