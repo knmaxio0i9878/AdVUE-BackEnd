@@ -16,14 +16,12 @@ const getAllUser = async (req, res) => {
     })
 }
 const getUserByEmail = async (req, res) => {
-    const hello="dsk";
+    
     const { email } = req.body;
     const user = await userSchema.findOne({ email: email });
     if (user) {
         const token = tokenUtil.generateToken(user.toObject());
         const emailBody = `Click Here for Password Reset : <a href="https://advue-backend-4.onrender.com/forgotusertoken/${token}"> Reset </a>`;
-
-
 
         await mail.sendingMail(user.email, "Verification of Password", emailBody)
         res.status(201).json({
