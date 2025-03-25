@@ -37,33 +37,29 @@ const getUserByEmail = async (req, res) => {
     }
 }
 const updateForgotUser = async (req, res) => {
+    console.log("=== Incoming Request ===");
+    console.log("Full Request URL:", req.originalUrl);
+    console.log("Received Token:", req.params.token || "❌ No token received");
+    console.log("Request Headers:", req.headers);
+    console.log("Request Body:", req.body);
+
     const token = req.params.token; 
-    console.log("Received Token:", token);
+    if (!token) {
+        return res.status(400).json({ message: "Token is missing in the request URL" });
+    }
+
     try {
-        let decoded;
-        decoded = jwt.verify(token,"parth1923")
-        console.log("decoded",decoded);
-        
+        let decoded = jwt.verify(token, "parth1923"); 
+        console.log("Decoded Token:", decoded);
 
-        const userId = decoded._id; // Extract user ID from token
+        const userId = decoded._id; 
         console.log("Decoded User ID:", userId);
-
-        console.log("New Password:", req.body.password);
 
         if (!req.body.password) {
             return res.status(400).json({ message: "Password is required" });
         }
 
-        // Encrypt the new password
-        let hashedPassword;
-        try {
-            hashedPassword = await encrypt.hashedPassword(req.body.password);
-        } catch (hashError) {
-            console.error("Password Hashing Error:", hashError.message);
-            return res.status(500).json({ message: "Error hashing password" });
-        }
-
-        // Find and update the user
+        let hashedPassword = await encrypt.hashedPassword(req.body.password);
         const updatedUser = await userSchema.findByIdAndUpdate(
             userId, 
             { password: hashedPassword }, 
@@ -87,6 +83,7 @@ const updateForgotUser = async (req, res) => {
         });
     }
 };
+
 
 const UserAdd = async (req, res) => {
 
