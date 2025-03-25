@@ -36,14 +36,9 @@ const getUserByEmail = async (req, res) => {
     }
 }
 const updateForgotUser = async (req, res) => {
+    const token = req.params.token; 
+    console.log("Received Token:", token);
     try {
-        const token = req.params.token; 
-        console.log("Received Token:", token);
-        if (!token) {
-            res.status(400).json({
-                 message: "Token is required" 
-            });
-        }
         let decoded;
         decoded = jwt.verify(token,"parth1923")
         console.log("decoded",decoded);
