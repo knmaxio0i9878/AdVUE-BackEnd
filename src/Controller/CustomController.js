@@ -165,16 +165,17 @@ const updateCustomEmail = async(req,res)=>{
                 ((orderDetails?.height * orderDetails?.width)*600):((orderDetails?.height * orderDetails?.width)*250)
             }</p>
           
-              <p style="margin-top: 20px; color: #555;">The Amount of Custumization is 20% higher from the displayed products in our website.</p>
-              <p style="margin-top: 20px; color: #555;">80% of Amount will be paid in advance , if you want to book your Advertisement then contact our team or you can email us.
-              </p>
-
-
-              <p style="margin-top: 20px; color: #555;">Also Please Provide your starting date !
-              </p>
+            <p style="margin-top: 20px; color: #555;">The Amount of Custumization is 20% higher from the displayed products in our website.</p>
+            <p style="margin-top: 20px; color: #555;">80% of Amount will be paid in advance , if you want to book your Advertisement then contact our team or you can email us.
+            </p>
             
-
-
+            
+            <p style="margin-top: 20px; color: #555;">Also Please Provide your starting date !
+            </p>
+            
+            
+            
+                <a href="https://advue-backend-4.onrender.com/payment/createorder">Pay Here </a>
               <p style="margin-top: 20px; color: #555;">If you have any questions, feel free to contact us.</p>
           
             
@@ -192,6 +193,17 @@ const updateCustomEmail = async(req,res)=>{
             console.error("Error sending email:", error);
             return res.status(500).json({ message: "Failed to send email", error: error.message });
         }
+}
+const updatePricing = async(req,res)=>{
+
+    const price = req.body.price
+    const id = req.params.id
+    const orderDetails = await Order.findOne({ _id: id });
+    if (!orderDetails) {
+        return res.status(404).json({ message: "Order not found" });
+        }
+        
+
 }
 
 module.exports = { insertProduct,getAllCustom,getSingleOrder,updateCustomEmail };
